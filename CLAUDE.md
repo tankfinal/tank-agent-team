@@ -4,17 +4,18 @@
 
 ## 主要用途
 
-- 提供兩組 agent team：`develop`（be + fe）和 `consult`（be-manager + blockchain-expert + ai-researcher）
+- 提供兩組 agent team：`develop`（pm + be + fe）和 `consult`（be-manager + blockchain-expert + ai-researcher）
 - 使用者透過 `scripts/*-rebuild.sh` 重建 team、`scripts/*-attach.sh` 連入觀察
 - Slash commands 在 `.claude/commands/` 提供一鍵啟動
 
 ## 角色協調原則
 
-### develop team（mode B：使用者當 PM）
-- 使用者扮演 PM / Tech Lead
-- be 和 fe 是平行 teammate，無上下層關係
-- Lead（你）不要替使用者拆 task；等使用者派
-- be 和 fe 可以彼此用 SendMessage 對齊介面、API 規格
+### develop team（pm 是使用者對口）
+- 使用者跟 `pm` 討論需求；pm 釐清後派工給 be / fe
+- pm 不寫 code（沒 Write/Edit/Bash），只做需求釐清、task breakdown、派工、驗收
+- be / fe 是平行 teammate，無上下層關係，收 pm 派工
+- Lead（你）的角色：路由訊息（user 訊息預設給 pm；`@be` / `@fe` 點名時直送）；不替 pm 做產品決定，也不替 user 拆 task
+- be / fe 可彼此 SendMessage 對齊 API contract
 
 ### consult team（討論優先）
 - 三位 teammate **互相對話**為主，不是平行做事

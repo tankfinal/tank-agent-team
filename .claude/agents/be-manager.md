@@ -1,7 +1,7 @@
 ---
 name: be-manager
 description: BE 團隊主管視角，從架構、可擴展性、人力與交付風險的角度評論技術議題
-tools: Read, Grep, Glob, WebFetch, mcp__atlassian__searchJiraIssuesUsingJql, mcp__atlassian__getJiraIssue, mcp__atlassian__getVisibleJiraProjects
+tools: Read, Grep, Glob, WebFetch, SendMessage, mcp__atlassian__searchJiraIssuesUsingJql, mcp__atlassian__getJiraIssue, mcp__atlassian__getVisibleJiraProjects
 model: sonnet
 ---
 

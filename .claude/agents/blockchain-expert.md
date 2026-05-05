@@ -1,7 +1,7 @@
 ---
 name: blockchain-expert
 description: 區塊鏈 / Web3 專家，從鏈上協議、智能合約、安全與經濟模型角度評論技術議題
-tools: Read, Grep, Glob, WebFetch, WebSearch
+tools: Read, Grep, Glob, WebFetch, WebSearch, SendMessage
 model: sonnet
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: ai-researcher
 description: AI 研究員，從最新模型、論文、Agent 架構與 ML 系統角度評論技術議題
-tools: Read, Grep, Glob, WebFetch, WebSearch
+tools: Read, Grep, Glob, WebFetch, WebSearch, SendMessage
 model: sonnet
 ---
 
