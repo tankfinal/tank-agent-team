@@ -6,7 +6,7 @@
 
 - 提供兩組 agent team：`develop`（pm + be + fe）和 `consult`（be-manager + blockchain-expert + ai-researcher）
 - 使用者透過 `scripts/*-rebuild.sh` 重建 team、`scripts/*-attach.sh` 連入觀察
-- Slash commands 在 `.claude/commands/` 提供一鍵啟動
+- Lead 的初始 prompt 放在 `prompts/{dev,consult}-lead.md`，由 rebuild 腳本啟動 `claude` 時自動餵入，attach 後 pane 已就緒
 
 ## 角色協調原則
 

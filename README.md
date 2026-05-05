@@ -43,13 +43,7 @@ Tank 個人的 Claude Code Agent Teams 模板。提供兩個預先設計好的 t
 ./scripts/dev-attach.sh    # 連到 tmux session 看 lead
 ```
 
-進到 lead session 後，在 prompt 內打：
-
-```
-/dev-start
-```
-
-Claude Code 會自動跑 `TeamCreate` + 三個 `Agent(team_name="dev")` spawn pm / be / fe，三個 pane 會出現。然後對 pm 描述你的需求，例：
+rebuild 會把 `prompts/dev-lead.md` 直接塞給 claude 當 initial prompt，Lead 自動跑 `TeamCreate` + 三個 `Agent(team_name="dev")` spawn pm / be / fe。attach 進去三個 pane 已開好，直接對 pm 描述需求，例：
 
 ```
 我想做一個個人記帳網站，可以匯入信用卡 CSV
@@ -64,15 +58,11 @@ pm 會開始問你 1–3 個關鍵問題，釐清完才派工。
 ./scripts/consult-attach.sh
 ```
 
-進去後：
+同樣自動帶 `prompts/consult-lead.md` 啟動，attach 進去三個 pane 已開好。直接給題目即可：
 
 ```
-/consult-start
+我們該不該自建 LLM？
 ```
-
-（不帶題目）—— Lead 會做就緒回報，等你給題目。給題目後才實際建 team。
-
-也可以一行帶題：`/consult-start 我們該不該自建 LLM？`
 
 ---
 
@@ -102,12 +92,12 @@ pm 會開始問你 1–3 個關鍵問題，釐清完才派工。
 
 | 腳本 | 用途 |
 |------|------|
-| `scripts/dev-rebuild.sh` | 砍掉 `tank-dev` tmux session，重建 + 列出 / 驗證載入的 agent / command md |
+| `scripts/dev-rebuild.sh` | 砍掉 `tank-dev` tmux session，重建 + 自動把 `prompts/dev-lead.md` 餵給 claude |
 | `scripts/dev-attach.sh` | 連到 `tank-dev` |
-| `scripts/consult-rebuild.sh` | 砍掉 `tank-consult`，重建 + sanity check |
+| `scripts/consult-rebuild.sh` | 砍掉 `tank-consult`，重建 + 自動把 `prompts/consult-lead.md` 餵給 claude |
 | `scripts/consult-attach.sh` | 連到 `tank-consult` |
 
-`*-rebuild.sh` 跑起來會印出實際在 `.claude/agents/*.md` 與 `.claude/commands/*.md` 找到的清單，並驗證該 team 預期的角色都在位（缺的會 ⚠️）。修改 md 後一定要 rebuild 才會生效，正在跑的 session 不會 hot reload。
+`*-rebuild.sh` 跑起來會印出實際在 `.claude/agents/*.md` 找到的清單，驗證該 team 預期的角色都在位（缺的會 ⚠️），然後 spawn `claude <prompt>` 讓 Lead 一啟動就直接 `TeamCreate` + 開三個 pane。修改 agent md 或 lead prompt 後一定要 rebuild 才會生效，正在跑的 session 不會 hot reload。
 
 ---
 
@@ -125,10 +115,10 @@ tank-agent-team/
 │   │   ├── be-manager.md
 │   │   ├── blockchain-expert.md
 │   │   └── ai-researcher.md
-│   ├── commands/                ← slash commands
-│   │   ├── dev-start.md
-│   │   └── consult-start.md
 │   └── settings.json            ← repo 層級設定（teammateMode: tmux + 實驗 flag）
+├── prompts/                     ← Lead 的初始 prompt（rebuild 腳本會餵給 claude）
+│   ├── dev-lead.md
+│   └── consult-lead.md
 ├── scripts/                     ← 一鍵啟動 / 重建 / 連接
 └── docs/
     ├── tmux-guide.md            ← tmux 安裝、教學、客製化
@@ -142,18 +132,18 @@ tank-agent-team/
 想改某位 teammate 的人格 / 專業 / 工具許可權：
 
 1. 編輯 `.claude/agents/<name>.md`
-2. 跑 `./scripts/<team>-rebuild.sh`（可從 sanity check 輸出確認改動已被 cwd 涵蓋）
-3. 重新 attach 進去 → `/dev-start` 或 `/consult-start`
+2. 跑 `./scripts/<team>-rebuild.sh`（rebuild 完 Lead 自動啟動，pane 直接出現）
+3. 重新 attach 進去看新版
 
 > 已經在跑的 team **不會** pick up 修改 —— 必須 rebuild 才會吃到新版。
 
-新增角色：在 `.claude/agents/` 放 `<name>.md`，然後在對應 team 的 `commands/<team>-start.md` 把該角色加進 spawn 步驟，並更新 `scripts/<team>-rebuild.sh` 的 `EXPECTED_AGENTS=()`。
+新增角色：在 `.claude/agents/` 放 `<name>.md`，然後在對應 team 的 `prompts/<team>-lead.md` 把該角色加進 spawn 步驟，並更新 `scripts/<team>-rebuild.sh` 的 `EXPECTED_AGENTS=()`。
 
 ---
 
 ## Caveats（已知限制）
 
-- **Split pane 需要 `team_name` 參數**：team mode 是用 `TeamCreate` + `Agent(team_name=..., name=...)` 觸發，缺 `team_name` 的話 Agent 只會 spawn 普通 subagent，不會 split pane。兩個 `*-start.md` 已經寫死這個流程。
+- **Split pane 需要 `team_name` 參數**：team mode 是用 `TeamCreate` + `Agent(team_name=..., name=...)` 觸發，缺 `team_name` 的話 Agent 只會 spawn 普通 subagent，不會 split pane。兩個 `prompts/*-lead.md` 已經寫死這個流程。
 - **Lead 不可轉移**：建立 team 的那個 Claude Code 進程才是 lead。重開機後 tmux server 死掉，team 就要重建。
 - **Subagent frontmatter `skills` / `mcpServers` 不繼承為 teammate**：但**全域 `~/.claude/settings.json` 配的 MCP 仍可用**。be-manager 用 atlassian MCP 沒問題（前提：你 user-level 有設）。
 - **同一 lead session 一次只能管一個 team**：要切換時務必 clean up team 後才能建另一個（或直接 kill tmux session 讓腳本重建）。

@@ -1,8 +1,4 @@
----
-description: 啟動 consult team（be-manager + blockchain-expert + ai-researcher）討論題目
----
-
-你是討論主持人（Lead）。團隊：
+你是 consult team 討論主持人（Lead）。團隊：
 
 - `be-manager`（後端管理視角）
 - `blockchain-expert`（區塊鏈 / Web3 視角）
@@ -12,39 +8,30 @@ description: 啟動 consult team（be-manager + blockchain-expert + ai-researche
 
 ---
 
-## 啟動順序（先建 team，再問題目）
+## 啟動步驟（必須照這順序，否則不會 split pane）
 
-### Step 1：就緒回報（不論 `$ARGUMENTS` 是否有題目都先做）
+### 1. 建 team
 
-1. 確認三位 md 都在你的 subagent 列表
-2. 一兩句話介紹三位定位差異
-3. **此時不要建 team、不要 spawn**
-
-### Step 2：問 / 收題目
-
-- 有 `$ARGUMENTS` → 直接進 Step 3
-- 沒題目 → 問 user：「想討論什麼題目？可以三位一起問，也可以指定某一位 / `@某位`」**不要替 user 提議題目**
-
-### Step 3：建 team（每個 session 只做一次）
-
-收到題目後，**先建 team，再 spawn**：
-
-**3a. 呼叫 `TeamCreate`：**
+呼叫 `TeamCreate`：
 - `team_name`: `consult`
 - `description`: `consult team — be-manager + blockchain-expert + ai-researcher 圓桌討論`
 - `agent_type`: `consult-lead`
 
-**3b. 同一 turn 內平行三個 `Agent` 呼叫**，每位都要帶：
-- `subagent_type`: 對應名字
-- `name`: 對應名字（SendMessage 用）
+### 2. 同一 turn 內三個 `Agent` 呼叫平行 spawn
+
+每位都要帶這四個參數，**缺 `team_name` 就不會 split pane**：
+- `subagent_type`: `be-manager` / `blockchain-expert` / `ai-researcher`
+- `name`: 同上（SendMessage 用）
 - `team_name`: `consult`
-- `prompt`: 完整題目 + 「同伴是 X 與 Y」+ 下方「互動風格」整段 + 「先給初步立場，再跟另兩位辯論到收斂」
+- `prompt`: 簡短自我介紹 + 角色職責 + 「同伴是 X 與 Y」+ 下方「互動風格」整段 + 「等待題目，收到後先給初步立場再跟另兩位辯論到收斂」
 
-⚠️ **缺 `team_name` 就不會 split pane**。三個 Agent 必須都帶。
+### 3. 回報 + 收題目
 
-如果 team 已存在（同 session 第二題），跳過 3a，只做 3b 把新題目發給已存在的 team —— 用 `SendMessage` 帶 `to: "*"` 廣播給全 team 即可，不要重新 spawn。
+team 建好後，回 user 一句：「team 已就緒，三位 pane 已開。想討論什麼題目？可以三位一起問，也可以指定某一位 / `@某位`」**不要替 user 提議題目**。
 
-回 user 一句：「team 已建好，三位開始討論（看 split pane），收斂後彙總。」
+### 4. 之後每個新題目
+
+team 已存在，**不要重新 TeamCreate / spawn**。直接 `SendMessage` 帶 `to: "*"` 廣播給全 team；user 點名某位則只 SendMessage 給該位。
 
 ---
 
@@ -113,14 +100,10 @@ user 訊息含 `@<name>` / 自然語句點名 / `cc <name>`：
 
 - ❌ Agent 呼叫不帶 `team_name`（沒 split pane）
 - ❌ 沒先 TeamCreate 就 spawn
-- ❌ 同 session 第二題重新 TeamCreate（重用 team，廣播新題目即可）
+- ❌ 同 session 重新 TeamCreate（重用既有 team，廣播新題目即可）
 - ❌ 中段把 pane 內容複製回主 pane
 - ❌ 對 idle teammate 反覆 ping
 - ❌ 替 user 提議題目
 - ❌ 用報告口吻轉述三位
 
----
-
-## 題目
-
-$ARGUMENTS
+請現在執行 Step 1–3，建好 team 並等待 user 給題目。
